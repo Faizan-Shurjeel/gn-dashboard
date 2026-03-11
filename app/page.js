@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/ThemeProvider";
 import {
@@ -25,19 +25,23 @@ import {
   X,
 } from "lucide-react";
 
-function ClayCard({
+function NeumorphicCard({
   children,
   className = "",
   onClick,
-  dark,
   style: extraStyle = {},
+  dark,
 }) {
   const [pressed, setPressed] = useState(false);
-  const bottomEdge = dark ? "#141210" : "#C4A882";
-  const topHighlight = dark
-    ? "rgba(255,255,255,0.05)"
-    : "rgba(255,255,255,0.8)";
-  const shadow = dark ? "rgba(0,0,0,0.55)" : "rgba(150,100,60,0.18)";
+
+  const baseBackground = dark ? "#23272f" : "#e9eef5";
+  const raisedShadow = dark
+    ? "8px 8px 18px rgba(10,12,16,0.55), -8px -8px 18px rgba(66,74,90,0.26)"
+    : "8px 8px 18px rgba(163,177,198,0.55), -8px -8px 18px rgba(255,255,255,0.95)";
+  const insetShadow = dark
+    ? "inset 6px 6px 12px rgba(10,12,16,0.55), inset -6px -6px 12px rgba(66,74,90,0.18)"
+    : "inset 6px 6px 12px rgba(163,177,198,0.45), inset -6px -6px 12px rgba(255,255,255,0.9)";
+
   return (
     <div
       onClick={onClick}
@@ -46,15 +50,13 @@ function ClayCard({
       onMouseLeave={() => setPressed(false)}
       onTouchStart={() => setPressed(true)}
       onTouchEnd={() => setPressed(false)}
-      className={`rounded-[22px] p-4 relative transition-all duration-150 ease-out ${onClick ? "cursor-pointer select-none" : ""} ${className}`}
+      className={`relative rounded-[28px] transition-all duration-150 ease-out ${onClick ? "cursor-pointer select-none" : ""} ${className}`}
       style={{
-        background: dark ? "#2C2825" : "#FFFFFF",
-        boxShadow: pressed
-          ? `0 1px 0 ${topHighlight} inset, 0 2px 0 ${bottomEdge}, 0 4px 10px ${shadow}`
-          : `0 1px 0 ${topHighlight} inset, 0 6px 0 ${bottomEdge}, 0 12px 24px ${shadow}`,
+        background: baseBackground,
+        boxShadow: pressed ? insetShadow : raisedShadow,
         transform: pressed
-          ? "scale(0.97) rotate(-0.4deg) translateY(4px)"
-          : "scale(1) rotate(0deg) translateY(0)",
+          ? "translateY(1px) scale(0.99)"
+          : "translateY(0) scale(1)",
         ...extraStyle,
       }}
     >
@@ -63,38 +65,89 @@ function ClayCard({
   );
 }
 
-function NavItem({ icon: Icon, label, active, onClick, dark, badge }) {
+function SoftIconButton({
+  children,
+  onClick,
+  dark,
+  className = "",
+  style = {},
+}) {
+  const bg = dark ? "#23272f" : "#e9eef5";
+  const color = dark ? "#aab4c8" : "#5d6b82";
+
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl text-sm font-semibold transition-all"
-      style={
-        active
-          ? {
-              background: "linear-gradient(135deg,#C8341A,#E85D42)",
-              color: "#fff",
-              boxShadow: "0 4px 0 #9B2112, 0 6px 14px rgba(200,52,26,0.3)",
-            }
-          : {
-              color: dark ? "#8B7D72" : "#78716C",
-            }
+      className={`flex items-center justify-center transition-all active:scale-95 ${className}`}
+      style={{
+        background: bg,
+        color,
+        boxShadow: dark
+          ? "6px 6px 12px rgba(10,12,16,0.5), -6px -6px 12px rgba(66,74,90,0.2)"
+          : "6px 6px 12px rgba(163,177,198,0.45), -6px -6px 12px rgba(255,255,255,0.9)",
+        ...style,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function NavItem({ icon: Icon, label, active, onClick, dark, badge }) {
+  const activeStyle = dark
+    ? {
+        color: "#7dd3fc",
+        background: "#23272f",
+        boxShadow:
+          "inset 5px 5px 10px rgba(10,12,16,0.55), inset -5px -5px 10px rgba(66,74,90,0.16)",
       }
+    : {
+        color: "#2563eb",
+        background: "#e9eef5",
+        boxShadow:
+          "inset 5px 5px 10px rgba(163,177,198,0.45), inset -5px -5px 10px rgba(255,255,255,0.92)",
+      };
+
+  const inactiveStyle = dark
+    ? { color: "#8e99ae", background: "transparent" }
+    : { color: "#617086", background: "transparent" };
+
+  return (
+    <button
+      onClick={onClick}
+      className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-sm font-semibold transition-all"
+      style={active ? activeStyle : inactiveStyle}
       onMouseEnter={(e) => {
         if (!active)
           e.currentTarget.style.background = dark
-            ? "rgba(255,255,255,0.05)"
-            : "#F5F0E8";
+            ? "rgba(255,255,255,0.03)"
+            : "rgba(255,255,255,0.45)";
       }}
       onMouseLeave={(e) => {
         if (!active) e.currentTarget.style.background = "transparent";
       }}
     >
-      <Icon className="h-5 w-5 flex-shrink-0" />
+      <Icon className="h-5 w-5 shrink-0" />
       <span className="flex-1 text-left">{label}</span>
       {badge && (
         <span
-          className="h-4 min-w-4 px-1 rounded-full text-[9px] font-extrabold text-white flex items-center justify-center"
-          style={{ background: "#C8341A" }}
+          className="min-w-5 h-5 px-1 rounded-full text-[10px] font-extrabold flex items-center justify-center"
+          style={{
+            background: active
+              ? dark
+                ? "#0f172a"
+                : "#dbeafe"
+              : dark
+                ? "#2d3440"
+                : "#dfe7f2",
+            color: active
+              ? dark
+                ? "#7dd3fc"
+                : "#2563eb"
+              : dark
+                ? "#aab4c8"
+                : "#5d6b82",
+          }}
         >
           {badge}
         </span>
@@ -103,10 +156,89 @@ function NavItem({ icon: Icon, label, active, onClick, dark, badge }) {
   );
 }
 
-export default function Home() {
+function SidebarContent({
+  navItems,
+  dark,
+  divider,
+  textMuted,
+  textPrimary,
+  accent,
+  sidebarBg,
+  toggleTheme,
+  router,
+  setMobileMenuOpen,
+}) {
+  return (
+    <>
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        {navItems.map((item) => (
+          <NavItem
+            key={item.label}
+            icon={item.icon}
+            label={item.label}
+            active={item.active}
+            badge={item.badge}
+            dark={dark}
+            onClick={() => {
+              router.push(item.path);
+              setMobileMenuOpen(false);
+            }}
+          />
+        ))}
+      </nav>
+
+      <div
+        className="px-3 pb-5 pt-4 space-y-3"
+        style={{ borderTop: `1px solid ${divider}` }}
+      >
+        <NeumorphicCard dark={dark} className="p-3">
+          <button
+            onClick={toggleTheme}
+            className="w-full flex items-center justify-between text-sm font-semibold"
+            style={{ color: textMuted }}
+          >
+            <span>{dark ? "Dark Mode" : "Light Mode"}</span>
+            {dark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+          </button>
+        </NeumorphicCard>
+
+        <NeumorphicCard dark={dark} className="p-3.5">
+          <div className="flex items-center gap-3">
+            <div
+              className="h-10 w-10 rounded-2xl flex items-center justify-center text-xs font-extrabold shrink-0"
+              style={{
+                color: accent,
+                background: sidebarBg,
+                boxShadow: dark
+                  ? "inset 4px 4px 8px rgba(10,12,16,0.45), inset -4px -4px 8px rgba(66,74,90,0.15)"
+                  : "inset 4px 4px 8px rgba(163,177,198,0.32), inset -4px -4px 8px rgba(255,255,255,0.95)",
+              }}
+            >
+              MC
+            </div>
+            <div className="min-w-0">
+              <div
+                className="text-sm font-bold truncate"
+                style={{ color: textPrimary }}
+              >
+                Marcus Chen
+              </div>
+              <div className="text-xs font-medium" style={{ color: textMuted }}>
+                Admin
+              </div>
+            </div>
+          </div>
+        </NeumorphicCard>
+      </div>
+    </>
+  );
+}
+
+export default function NeumorphismDashboardPage() {
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const dark = theme === "dark";
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [diaryEntries, setDiaryEntries] = useState([
     {
@@ -131,55 +263,59 @@ export default function Home() {
   const addNote = () => {
     if (!newNote.trim()) return;
     const now = new Date();
-    const h = now.getHours(),
-      m = String(now.getMinutes()).padStart(2, "0");
-    setDiaryEntries((p) => [
+    const h = now.getHours();
+    const m = String(now.getMinutes()).padStart(2, "0");
+
+    setDiaryEntries((prev) => [
       {
         id: Date.now(),
         text: newNote.trim(),
         time: `${h % 12 || 12}:${m} ${h >= 12 ? "PM" : "AM"}`,
       },
-      ...p,
+      ...prev,
     ]);
     setNewNote("");
     setShowNoteInput(false);
   };
 
-  const upcomingEvents = [
-    {
-      id: "EVT-2025-0041",
-      name: "Ahmed & Sana Wedding",
-      type: "Wedding",
-      date: "Dec 12, 2025",
-      guests: 350,
-      status: "Paid",
-      statusColor: "#16a34a",
-      typeBg: dark ? "rgba(251,113,133,0.2)" : "#FFE4E6",
-      typeColor: dark ? "#fb7185" : "#be123c",
-    },
-    {
-      id: "EVT-2025-0045",
-      name: "Engro Corp AGM",
-      type: "Corporate",
-      date: "Dec 15, 2025",
-      guests: 120,
-      status: "PKR 45,000 Due",
-      statusColor: "#dc2626",
-      typeBg: dark ? "rgba(96,165,250,0.2)" : "#DBEAFE",
-      typeColor: dark ? "#60a5fa" : "#1d4ed8",
-    },
-    {
-      id: "EVT-2025-0048",
-      name: "Birthday — Zaid",
-      type: "General",
-      date: "Dec 18, 2025",
-      guests: 50,
-      status: "Paid",
-      statusColor: "#16a34a",
-      typeBg: dark ? "rgba(251,191,36,0.2)" : "#FEF3C7",
-      typeColor: dark ? "#fbbf24" : "#92400e",
-    },
-  ];
+  const upcomingEvents = useMemo(
+    () => [
+      {
+        id: "EVT-2025-0041",
+        name: "Ahmed & Sana Wedding",
+        type: "Wedding",
+        date: "Dec 12, 2025",
+        guests: 350,
+        status: "Paid",
+        statusColor: dark ? "#4ade80" : "#15803d",
+        typeBg: dark ? "#2f2430" : "#fce7f3",
+        typeColor: dark ? "#f9a8d4" : "#be185d",
+      },
+      {
+        id: "EVT-2025-0045",
+        name: "Engro Corp AGM",
+        type: "Corporate",
+        date: "Dec 15, 2025",
+        guests: 120,
+        status: "PKR 45,000 Due",
+        statusColor: dark ? "#f87171" : "#dc2626",
+        typeBg: dark ? "#1d2f45" : "#dbeafe",
+        typeColor: dark ? "#93c5fd" : "#1d4ed8",
+      },
+      {
+        id: "EVT-2025-0048",
+        name: "Birthday — Zaid",
+        type: "General",
+        date: "Dec 18, 2025",
+        guests: 50,
+        status: "Paid",
+        statusColor: dark ? "#4ade80" : "#15803d",
+        typeBg: dark ? "#3c321c" : "#fef3c7",
+        typeColor: dark ? "#fcd34d" : "#92400e",
+      },
+    ],
+    [dark],
+  );
 
   const activity = [
     { text: "Invoice #412 created", time: "2 mins ago" },
@@ -189,14 +325,22 @@ export default function Home() {
     { text: "Customer profile: Zaid", time: "1 day ago" },
   ];
 
-  const bg = dark ? "#1A1714" : "#F5F0E8";
-  const tp = dark ? "#F5F0E8" : "#1C1410";
-  const tm = dark ? "#8B7D72" : "#78716C";
-  const border = dark ? "#3D3530" : "#EDE5D8";
-  const sidebarBg = dark ? "#211E1B" : "#FFFFFF";
+  const bg = dark ? "#1b1f27" : "#e9eef5";
+  const sidebarBg = dark ? "#20242c" : "#e9eef5";
+  const textPrimary = dark ? "#eef4ff" : "#1f2937";
+  const textMuted = dark ? "#94a3b8" : "#64748b";
+  const divider = dark ? "rgba(148,163,184,0.12)" : "rgba(100,116,139,0.12)";
+  const accent = dark ? "#7dd3fc" : "#2563eb";
+  const accentSoft = dark ? "#172554" : "#dbeafe";
+  const warning = dark ? "#fbbf24" : "#d97706";
 
   const navItems = [
-    { icon: LayoutDashboard, label: "Dashboard", path: "/", active: true },
+    {
+      icon: LayoutDashboard,
+      label: "Dashboard",
+      path: "/neumorphism",
+      active: true,
+    },
     { icon: CalendarDays, label: "Events", path: "/events", badge: "4" },
     { icon: FileText, label: "Invoices", path: "/invoices" },
     { icon: Users, label: "Clients", path: "/clients" },
@@ -204,87 +348,47 @@ export default function Home() {
     { icon: Settings, label: "Settings", path: "/settings" },
   ];
 
-  const SidebarContent = () => (
-    <>
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {navItems.map((item) => (
-          <NavItem
-            key={item.label}
-            icon={item.icon}
-            label={item.label}
-            active={item.active}
-            dark={dark}
-            badge={item.badge}
-            onClick={() => {
-              router.push(item.path);
-              setMobileMenuOpen(false);
-            }}
-          />
-        ))}
-      </nav>
-      <div
-        className="px-3 pb-5 space-y-2.5"
-        style={{ borderTop: `1px solid ${border}`, paddingTop: 14 }}
-      >
-        <button
-          onClick={toggleTheme}
-          className="w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-sm font-semibold transition-all"
-          style={{
-            background: dark ? "rgba(255,255,255,0.05)" : "#F5F0E8",
-            color: tm,
-          }}
-        >
-          <span>{dark ? "Dark Mode" : "Light Mode"}</span>
-          {dark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-        </button>
-        <div
-          className="flex items-center gap-3 px-3 py-2.5 rounded-2xl"
-          style={{ background: dark ? "rgba(255,255,255,0.05)" : "#F5F0E8" }}
-        >
-          <div
-            className="h-8 w-8 rounded-xl flex items-center justify-center text-xs font-extrabold text-white flex-shrink-0"
-            style={{ background: "linear-gradient(135deg,#C8341A,#E85D42)" }}
-          >
-            MC
-          </div>
-          <div className="min-w-0">
-            <div className="text-sm font-bold truncate" style={{ color: tp }}>
-              Marcus Chen
-            </div>
-            <div className="text-xs font-medium" style={{ color: tm }}>
-              Admin
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        *, *::before, *::after { font-family: 'Plus Jakarta Sans', sans-serif !important; box-sizing: border-box; }
+        *, *::before, *::after { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif !important; }
         html, body { margin: 0; padding: 0; }
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-thumb { background: ${dark ? "#3D3530" : "#D6C9B8"}; border-radius: 4px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb {
+          background: ${dark ? "#3a4352" : "#c6d0dc"};
+          border-radius: 999px;
+        }
         ::-webkit-scrollbar-track { background: transparent; }
-        @keyframes fab-pulse {
-          0%,100% { box-shadow: 0 0 0 0 rgba(200,52,26,0.35),0 6px 0 #9B2112,0 10px 20px rgba(200,52,26,0.3); }
-          50% { box-shadow: 0 0 0 10px rgba(200,52,26,0),0 6px 0 #9B2112,0 10px 20px rgba(200,52,26,0.3); }
+        @keyframes soft-float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-2px); }
         }
-        .fab-pulse { animation: fab-pulse 2.5s ease-in-out infinite; }
-        @keyframes slide-up { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        .soft-float { animation: soft-float 2.8s ease-in-out infinite; }
+        @keyframes slide-up {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         .slide-up { animation: slide-up 0.2s ease-out; }
-        .clay-textarea {
-          width:100%; background:${dark ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.9)"};
-          border:2px solid ${dark ? "#3D3530" : "#E8DDD0"}; border-radius:14px;
-          padding:10px 14px; font-size:14px; font-weight:500;
-          color:${tp}; outline:none; resize:none; display:block;
-          transition:border-color 0.2s;
+        .neu-textarea {
+          width: 100%;
+          border: none;
+          outline: none;
+          resize: none;
+          display: block;
+          padding: 12px 14px;
+          border-radius: 18px;
+          background: ${dark ? "#23272f" : "#e9eef5"};
+          color: ${textPrimary};
+          font-size: 14px;
+          font-weight: 500;
+          box-shadow: ${
+            dark
+              ? "inset 6px 6px 12px rgba(10,12,16,0.55), inset -6px -6px 12px rgba(66,74,90,0.18)"
+              : "inset 6px 6px 12px rgba(163,177,198,0.4), inset -6px -6px 12px rgba(255,255,255,0.95)"
+          };
         }
-        .clay-textarea:focus { border-color:#C8341A; }
-        .clay-textarea::placeholder { color:${tm}; }
+        .neu-textarea::placeholder { color: ${textMuted}; }
       `}</style>
 
       <div
@@ -292,159 +396,203 @@ export default function Home() {
           display: "flex",
           minHeight: "100vh",
           background: bg,
-          transition: "background 0.3s",
+          transition: "background 0.3s ease",
         }}
       >
-        {/* ── Desktop Sidebar ── */}
         <aside
           className="hidden lg:flex flex-col w-60 xl:w-64 flex-shrink-0 h-screen sticky top-0 z-20"
           style={{
             background: sidebarBg,
-            borderRight: `1px solid ${border}`,
-            boxShadow: dark
-              ? "2px 0 20px rgba(0,0,0,0.4)"
-              : "2px 0 20px rgba(150,100,60,0.08)",
+            borderRight: `1px solid ${divider}`,
           }}
         >
-          <div
-            className="px-5 pt-6 pb-4 flex items-center gap-3"
-            style={{ borderBottom: `1px solid ${border}` }}
-          >
-            <div
-              className="h-10 w-10 rounded-2xl flex items-center justify-center font-extrabold text-sm text-white flex-shrink-0"
-              style={{
-                background: "linear-gradient(135deg,#C8341A,#E85D42)",
-                boxShadow: "0 4px 0 #9B2112,0 6px 14px rgba(200,52,26,0.3)",
-              }}
-            >
-              GN
-            </div>
-            <div>
-              <div className="text-sm font-extrabold" style={{ color: tp }}>
-                GN Caterers
+          <div className="px-5 pt-6 pb-4">
+            <NeumorphicCard dark={dark} className="p-4">
+              <div className="flex items-center gap-3">
+                <div
+                  className="h-11 w-11 rounded-2xl flex items-center justify-center font-extrabold text-sm shrink-0"
+                  style={{
+                    color: accent,
+                    background: sidebarBg,
+                    boxShadow: dark
+                      ? "inset 5px 5px 10px rgba(10,12,16,0.55), inset -5px -5px 10px rgba(66,74,90,0.18)"
+                      : "inset 5px 5px 10px rgba(163,177,198,0.4), inset -5px -5px 10px rgba(255,255,255,0.95)",
+                  }}
+                >
+                  GN
+                </div>
+                <div>
+                  <div
+                    className="text-sm font-extrabold"
+                    style={{ color: textPrimary }}
+                  >
+                    GN Caterers
+                  </div>
+                  <div
+                    className="text-xs font-medium"
+                    style={{ color: textMuted }}
+                  >
+                    Neumorphism UI
+                  </div>
+                </div>
               </div>
-              <div className="text-xs font-medium" style={{ color: tm }}>
-                Management System
-              </div>
-            </div>
+            </NeumorphicCard>
           </div>
-          <SidebarContent />
+          <SidebarContent
+            navItems={navItems}
+            dark={dark}
+            divider={divider}
+            textMuted={textMuted}
+            textPrimary={textPrimary}
+            accent={accent}
+            sidebarBg={sidebarBg}
+            toggleTheme={toggleTheme}
+            router={router}
+            setMobileMenuOpen={setMobileMenuOpen}
+          />
         </aside>
 
-        {/* ── Mobile Drawer ── */}
         {mobileMenuOpen && (
           <div className="lg:hidden fixed inset-0 z-50 flex">
             <div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              className="absolute inset-0"
+              style={{
+                background: "rgba(15,23,42,0.35)",
+                backdropFilter: "blur(8px)",
+              }}
               onClick={() => setMobileMenuOpen(false)}
             />
             <aside
               className="relative w-72 h-full flex flex-col z-10"
               style={{ background: sidebarBg }}
             >
-              <div
-                className="px-5 pt-6 pb-4 flex items-center justify-between"
-                style={{ borderBottom: `1px solid ${border}` }}
-              >
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className="h-9 w-9 rounded-2xl flex items-center justify-center font-extrabold text-sm text-white"
-                    style={{
-                      background: "linear-gradient(135deg,#C8341A,#E85D42)",
-                      boxShadow: "0 3px 0 #9B2112",
-                    }}
-                  >
-                    GN
+              <div className="px-5 pt-6 pb-4">
+                <NeumorphicCard dark={dark} className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div
+                        className="h-10 w-10 rounded-2xl flex items-center justify-center font-extrabold text-sm shrink-0"
+                        style={{
+                          color: accent,
+                          background: sidebarBg,
+                          boxShadow: dark
+                            ? "inset 5px 5px 10px rgba(10,12,16,0.55), inset -5px -5px 10px rgba(66,74,90,0.18)"
+                            : "inset 5px 5px 10px rgba(163,177,198,0.4), inset -5px -5px 10px rgba(255,255,255,0.95)",
+                        }}
+                      >
+                        GN
+                      </div>
+                      <span
+                        className="text-base font-extrabold"
+                        style={{ color: textPrimary }}
+                      >
+                        GN Caterers
+                      </span>
+                    </div>
+                    <SoftIconButton
+                      dark={dark}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="h-9 w-9 rounded-2xl"
+                    >
+                      <X className="h-5 w-5" />
+                    </SoftIconButton>
                   </div>
-                  <span
-                    className="text-base font-extrabold"
-                    style={{ color: tp }}
-                  >
-                    GN Caterers
-                  </span>
-                </div>
-                <button
-                  onClick={() => setMobileMenuOpen(false)}
-                  style={{ color: tm }}
-                >
-                  <X className="h-5 w-5" />
-                </button>
+                </NeumorphicCard>
               </div>
-              <SidebarContent />
+              <SidebarContent
+                navItems={navItems}
+                dark={dark}
+                divider={divider}
+                textMuted={textMuted}
+                textPrimary={textPrimary}
+                accent={accent}
+                sidebarBg={sidebarBg}
+                toggleTheme={toggleTheme}
+                router={router}
+                setMobileMenuOpen={setMobileMenuOpen}
+              />
             </aside>
           </div>
         )}
 
-        {/* ── Main ── */}
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-          {/* Header */}
           <header
             className="sticky top-0 z-30 flex items-center justify-between px-4 lg:px-8 py-3 lg:py-4"
             style={{
               background: bg,
-              borderBottom: `1px solid ${border}`,
-              backdropFilter: "blur(10px)",
+              borderBottom: `1px solid ${divider}`,
+              backdropFilter: "blur(14px)",
             }}
           >
             <div className="flex items-center gap-3 lg:hidden">
-              <button
+              <SoftIconButton
+                dark={dark}
                 onClick={() => setMobileMenuOpen(true)}
-                style={{ color: tm }}
+                className="h-10 w-10 rounded-2xl"
               >
-                <Menu className="h-6 w-6" />
-              </button>
+                <Menu className="h-5 w-5" />
+              </SoftIconButton>
               <span className="text-lg font-extrabold">
-                <span style={{ color: "#C8341A" }}>GN</span>
-                <span style={{ color: tp }}> Caterers</span>
+                <span style={{ color: accent }}>GN</span>
+                <span style={{ color: textPrimary }}> Caterers</span>
               </span>
             </div>
+
             <div className="hidden lg:block">
-              <h1 className="text-xl font-extrabold" style={{ color: tp }}>
+              <h1
+                className="text-xl font-extrabold"
+                style={{ color: textPrimary }}
+              >
                 Dashboard
               </h1>
-              <p className="text-xs font-semibold mt-0.5" style={{ color: tm }}>
+              <p
+                className="text-xs font-semibold mt-0.5"
+                style={{ color: textMuted }}
+              >
                 Good morning, Marcus 👋
               </p>
             </div>
+
             <div className="flex items-center gap-2">
-              <button
+              <SoftIconButton
+                dark={dark}
                 onClick={toggleTheme}
-                className="h-9 w-9 rounded-2xl flex items-center justify-center transition-all active:scale-95"
-                style={{
-                  background: dark ? "rgba(255,255,255,0.07)" : "#EDE5D8",
-                  color: tm,
-                  boxShadow: dark ? "0 3px 0 #141210" : "0 3px 0 #C4A882",
-                }}
+                className="h-10 w-10 rounded-2xl"
               >
                 {dark ? (
                   <Sun className="h-4 w-4" />
                 ) : (
                   <Moon className="h-4 w-4" />
                 )}
-              </button>
-              <div
-                className="relative h-9 w-9 rounded-2xl flex items-center justify-center"
-                style={{
-                  background: dark ? "#2C2825" : "#FFFFFF",
-                  boxShadow: dark
-                    ? "0 4px 0 #141210,0 6px 14px rgba(0,0,0,0.4)"
-                    : "0 4px 0 #C4A882,0 6px 14px rgba(150,100,60,0.15)",
-                }}
-              >
-                <Bell className="h-4 w-4" style={{ color: tm }} />
+              </SoftIconButton>
+
+              <div className="relative">
+                <SoftIconButton dark={dark} className="h-10 w-10 rounded-2xl">
+                  <Bell className="h-4 w-4" />
+                </SoftIconButton>
                 <span
-                  className="absolute -top-1 -right-1 h-4 w-4 rounded-full text-[9px] font-extrabold text-white flex items-center justify-center"
-                  style={{ background: "#C8341A" }}
+                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full text-[10px] font-extrabold flex items-center justify-center"
+                  style={{
+                    background: accentSoft,
+                    color: accent,
+                    boxShadow: dark
+                      ? "4px 4px 8px rgba(10,12,16,0.45), -4px -4px 8px rgba(66,74,90,0.16)"
+                      : "4px 4px 8px rgba(163,177,198,0.38), -4px -4px 8px rgba(255,255,255,0.95)",
+                  }}
                 >
                   3
                 </span>
               </div>
+
               <button
                 onClick={() => router.push("/new-event")}
-                className="hidden lg:flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-bold text-white transition-all active:scale-95 fab-pulse"
+                className="hidden lg:flex items-center gap-2 px-4 py-3 rounded-[18px] text-sm font-bold soft-float"
                 style={{
-                  background: "linear-gradient(135deg,#C8341A,#E85D42)",
-                  boxShadow: "0 4px 0 #9B2112,0 6px 14px rgba(200,52,26,0.3)",
+                  color: accent,
+                  background: bg,
+                  boxShadow: dark
+                    ? "8px 8px 16px rgba(10,12,16,0.52), -8px -8px 16px rgba(66,74,90,0.18)"
+                    : "8px 8px 16px rgba(163,177,198,0.45), -8px -8px 16px rgba(255,255,255,0.92)",
                 }}
               >
                 <Plus className="h-4 w-4" strokeWidth={2.5} /> New Invoice
@@ -452,21 +600,22 @@ export default function Home() {
             </div>
           </header>
 
-          {/* Page Body */}
           <main className="flex-1 overflow-y-auto p-4 lg:p-8 pb-28 lg:pb-8">
             <div className="lg:hidden mb-5">
-              <div className="text-2xl font-extrabold" style={{ color: tp }}>
+              <div
+                className="text-2xl font-extrabold"
+                style={{ color: textPrimary }}
+              >
                 Good morning 👋
               </div>
               <div
                 className="text-sm font-semibold mt-0.5"
-                style={{ color: tm }}
+                style={{ color: textMuted }}
               >
-                Here's what's happening today
+                Here is what&apos;s happening today
               </div>
             </div>
 
-            {/* Stat Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5 mb-6 lg:mb-8">
               {[
                 {
@@ -474,7 +623,7 @@ export default function Home() {
                   label: "Today's Events",
                   value: "4",
                   sub: "2 active now",
-                  iconBg: "#3B82F6",
+                  iconColor: dark ? "#7dd3fc" : "#2563eb",
                   onClick: () => router.push("/events"),
                 },
                 {
@@ -482,15 +631,15 @@ export default function Home() {
                   label: "This Month",
                   value: "PKR 850k",
                   sub: "+12% vs last",
-                  iconBg: "#22C55E",
+                  iconColor: dark ? "#4ade80" : "#16a34a",
                 },
                 {
                   icon: CreditCard,
                   label: "Client Dues",
                   value: "PKR 125k",
                   sub: "Pending from clients",
-                  iconBg: "#EF4444",
-                  valueColor: "#C8341A",
+                  iconColor: dark ? "#f87171" : "#dc2626",
+                  valueColor: dark ? "#fda4af" : "#b91c1c",
                   tag: "B2C",
                   onClick: () => router.push("/clients"),
                 },
@@ -499,113 +648,125 @@ export default function Home() {
                   label: "Vendor Dues",
                   value: "PKR 65k",
                   sub: "Owed to vendors",
-                  iconBg: "#8B5CF6",
-                  valueColor: "#7C3AED",
+                  iconColor: dark ? "#c4b5fd" : "#7c3aed",
+                  valueColor: dark ? "#ddd6fe" : "#6d28d9",
                   tag: "B2B",
                   onClick: () => router.push("/vendors"),
                 },
               ].map((card) => (
-                <ClayCard key={card.label} dark={dark} onClick={card.onClick}>
+                <NeumorphicCard
+                  key={card.label}
+                  dark={dark}
+                  onClick={card.onClick}
+                  className="p-4 lg:p-5"
+                >
                   <div
-                    className="h-9 w-9 rounded-xl flex items-center justify-center mb-3 flex-shrink-0"
+                    className="h-10 w-10 rounded-2xl flex items-center justify-center mb-3"
                     style={{
-                      background: card.iconBg,
-                      boxShadow: `0 3px 8px ${card.iconBg}55`,
+                      background: bg,
+                      boxShadow: dark
+                        ? "inset 5px 5px 10px rgba(10,12,16,0.55), inset -5px -5px 10px rgba(66,74,90,0.16)"
+                        : "inset 5px 5px 10px rgba(163,177,198,0.38), inset -5px -5px 10px rgba(255,255,255,0.95)",
                     }}
                   >
                     <card.icon
-                      className="h-4 w-4 text-white"
+                      className="h-4 w-4"
                       strokeWidth={2.5}
+                      style={{ color: card.iconColor }}
                     />
                   </div>
+
                   <div
                     className="text-[10px] font-extrabold uppercase tracking-wider mb-1"
-                    style={{ color: tm }}
+                    style={{ color: textMuted }}
                   >
                     {card.label}
                   </div>
+
                   <div
                     className="text-lg lg:text-xl font-extrabold leading-tight"
-                    style={{ color: card.valueColor || tp }}
+                    style={{ color: card.valueColor || textPrimary }}
                   >
                     {card.value}
                   </div>
+
                   <div
                     className="text-[10px] font-semibold mt-0.5"
-                    style={{ color: tm }}
+                    style={{ color: textMuted }}
                   >
                     {card.sub}
                   </div>
+
                   {card.tag && (
-                    <div className="absolute bottom-3 right-3 flex items-center gap-0.5">
+                    <div className="absolute bottom-4 right-4 flex items-center gap-1">
                       <span
-                        className="text-[9px] font-extrabold tracking-wide"
-                        style={{ color: card.iconBg }}
+                        className="text-[10px] font-extrabold tracking-wide"
+                        style={{ color: card.iconColor }}
                       >
                         {card.tag}
                       </span>
                       <ChevronRight
                         className="h-3 w-3"
-                        style={{ color: dark ? "#4A3F38" : "#C4B5A0" }}
+                        style={{ color: textMuted }}
                       />
                     </div>
                   )}
+
                   {card.onClick && !card.tag && (
                     <ChevronRight
-                      className="absolute bottom-3 right-3 h-3.5 w-3.5"
-                      style={{ color: dark ? "#4A3F38" : "#C4B5A0" }}
+                      className="absolute bottom-4 right-4 h-3.5 w-3.5"
+                      style={{ color: textMuted }}
                     />
                   )}
-                </ClayCard>
+                </NeumorphicCard>
               ))}
             </div>
 
-            {/* Two-column grid on desktop */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-              {/* Left */}
               <div className="lg:col-span-2 space-y-4 lg:space-y-6">
-                {/* Upcoming Events */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span
                       className="text-base font-extrabold"
-                      style={{ color: tp }}
+                      style={{ color: textPrimary }}
                     >
                       Upcoming Events
                     </span>
                     <button
                       className="text-sm font-bold"
-                      style={{ color: "#C8341A" }}
+                      style={{ color: accent }}
                       onClick={() => router.push("/events")}
                     >
                       View All
                     </button>
                   </div>
+
                   <div className="space-y-3">
                     {upcomingEvents.map((ev) => (
-                      <ClayCard
+                      <NeumorphicCard
                         key={ev.id}
                         dark={dark}
                         onClick={() => {}}
-                        className="!p-4"
+                        className="p-4"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
                             <div
                               className="text-[10px] font-bold mb-1"
-                              style={{ color: tm }}
+                              style={{ color: textMuted }}
                             >
                               {ev.id}
                             </div>
                             <div
                               className="text-sm font-extrabold truncate mb-2"
-                              style={{ color: tp }}
+                              style={{ color: textPrimary }}
                             >
                               {ev.name}
                             </div>
+
                             <div className="flex items-center gap-2 flex-wrap">
                               <span
-                                className="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                                className="text-[11px] font-bold px-2.5 py-1 rounded-full"
                                 style={{
                                   background: ev.typeBg,
                                   color: ev.typeColor,
@@ -613,148 +774,147 @@ export default function Home() {
                               >
                                 {ev.type}
                               </span>
+
                               <span
                                 className="text-[11px] font-semibold flex items-center gap-1"
-                                style={{ color: tm }}
+                                style={{ color: textMuted }}
                               >
                                 <CalendarDays className="h-3 w-3" />
                                 {ev.date}
                               </span>
+
                               <span
                                 className="text-[11px] font-semibold flex items-center gap-1"
-                                style={{ color: tm }}
+                                style={{ color: textMuted }}
                               >
                                 <Users className="h-3 w-3" />
                                 {ev.guests}
                               </span>
                             </div>
                           </div>
+
                           <span
-                            className="text-sm font-extrabold flex-shrink-0"
+                            className="text-sm font-extrabold shrink-0"
                             style={{ color: ev.statusColor }}
                           >
                             {ev.status}
                           </span>
                         </div>
-                      </ClayCard>
+                      </NeumorphicCard>
                     ))}
                   </div>
                 </div>
 
-                {/* Recent Activity */}
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    <Zap className="h-4 w-4" style={{ color: "#8B5CF6" }} />
+                    <Zap
+                      className="h-4 w-4"
+                      style={{ color: dark ? "#c4b5fd" : "#7c3aed" }}
+                    />
                     <span
                       className="text-base font-extrabold"
-                      style={{ color: tp }}
+                      style={{ color: textPrimary }}
                     >
                       Recent Activity
                     </span>
                   </div>
-                  <ClayCard dark={dark} className="!p-0 overflow-hidden">
+
+                  <NeumorphicCard dark={dark} className="p-1 overflow-hidden">
                     {activity.map((item, i) => (
                       <div
                         key={i}
-                        className="flex items-center gap-3 px-4 py-3 transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 rounded-[22px] transition-colors"
                         style={{
                           borderBottom:
                             i < activity.length - 1
-                              ? `1px solid ${border}`
+                              ? `1px solid ${divider}`
                               : "none",
                           cursor: "pointer",
                         }}
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.background = dark
-                            ? "rgba(255,255,255,0.03)"
-                            : "#FAF7F2")
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.background = "transparent")
-                        }
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = dark
+                            ? "rgba(255,255,255,0.02)"
+                            : "rgba(255,255,255,0.42)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "transparent";
+                        }}
                       >
                         <div
-                          className="h-2 w-2 rounded-full flex-shrink-0"
+                          className="h-2.5 w-2.5 rounded-full shrink-0"
                           style={{
                             background:
-                              i === 0
-                                ? "#C8341A"
-                                : dark
-                                  ? "#3D3530"
-                                  : "#D6C9B8",
+                              i === 0 ? accent : dark ? "#4b5563" : "#94a3b8",
                           }}
                         />
                         <div className="flex-1 min-w-0">
                           <div
                             className="text-sm font-semibold truncate"
-                            style={{ color: tp }}
+                            style={{ color: textPrimary }}
                           >
                             {item.text}
                           </div>
                           <div
                             className="text-[11px] font-semibold"
-                            style={{ color: tm }}
+                            style={{ color: textMuted }}
                           >
                             {item.time}
                           </div>
                         </div>
                         <ChevronRight
-                          className="h-3.5 w-3.5 flex-shrink-0"
-                          style={{ color: dark ? "#3D3530" : "#D6C9B8" }}
+                          className="h-3.5 w-3.5 shrink-0"
+                          style={{ color: textMuted }}
                         />
                       </div>
                     ))}
-                  </ClayCard>
+                  </NeumorphicCard>
                 </div>
               </div>
 
-              {/* Right: Diary */}
               <div className="lg:col-span-1">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <BookOpen
-                      className="h-4 w-4"
-                      style={{ color: "#F59E0B" }}
-                    />
+                    <BookOpen className="h-4 w-4" style={{ color: warning }} />
                     <span
                       className="text-base font-extrabold"
-                      style={{ color: tp }}
+                      style={{ color: textPrimary }}
                     >
                       Diary
                     </span>
                   </div>
-                  <button
+
+                  <SoftIconButton
+                    dark={dark}
                     onClick={() => setShowNoteInput((v) => !v)}
-                    className="h-8 w-8 rounded-xl flex items-center justify-center text-white transition-all active:scale-95"
-                    style={{
-                      background: "#F59E0B",
-                      boxShadow:
-                        "0 3px 0 #B45309,0 5px 10px rgba(245,158,11,0.3)",
-                    }}
+                    className="h-9 w-9 rounded-2xl"
+                    style={{ color: warning }}
                   >
                     <Plus className="h-4 w-4" strokeWidth={2.5} />
-                  </button>
+                  </SoftIconButton>
                 </div>
 
                 {showNoteInput && (
                   <div className="mb-3 slide-up">
-                    <ClayCard dark={dark} className="!p-3">
+                    <NeumorphicCard dark={dark} className="p-3">
                       <textarea
                         autoFocus
                         rows={3}
                         value={newNote}
                         onChange={(e) => setNewNote(e.target.value)}
                         placeholder="Write a note..."
-                        className="clay-textarea mb-2"
+                        className="neu-textarea mb-3"
                       />
                       <div className="flex gap-2">
                         <button
                           onClick={addNote}
                           disabled={!newNote.trim()}
-                          className="flex-1 py-2 rounded-xl text-sm font-bold text-white disabled:opacity-40 active:scale-95 transition-all"
+                          className="flex-1 py-2.5 rounded-2xl text-sm font-bold transition-all disabled:opacity-40 active:scale-95"
                           style={{
-                            background: "#F59E0B",
-                            boxShadow: "0 3px 0 #B45309",
+                            color: accent,
+                            background: bg,
+                            boxShadow: dark
+                              ? "6px 6px 12px rgba(10,12,16,0.52), -6px -6px 12px rgba(66,74,90,0.18)"
+                              : "6px 6px 12px rgba(163,177,198,0.4), -6px -6px 12px rgba(255,255,255,0.95)",
                           }}
                         >
                           Save
@@ -764,70 +924,71 @@ export default function Home() {
                             setShowNoteInput(false);
                             setNewNote("");
                           }}
-                          className="px-4 py-2 rounded-xl text-sm font-bold"
+                          className="px-4 py-2.5 rounded-2xl text-sm font-bold transition-all active:scale-95"
                           style={{
-                            background: dark
-                              ? "rgba(255,255,255,0.07)"
-                              : "#F5F0E8",
-                            color: tm,
+                            color: textMuted,
+                            background: bg,
                             boxShadow: dark
-                              ? "0 3px 0 #141210"
-                              : "0 3px 0 #C4A882",
+                              ? "6px 6px 12px rgba(10,12,16,0.52), -6px -6px 12px rgba(66,74,90,0.18)"
+                              : "6px 6px 12px rgba(163,177,198,0.4), -6px -6px 12px rgba(255,255,255,0.95)",
                           }}
                         >
                           Cancel
                         </button>
                       </div>
-                    </ClayCard>
+                    </NeumorphicCard>
                   </div>
                 )}
 
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {diaryEntries.map((entry) => (
-                    <ClayCard
+                    <NeumorphicCard
                       key={entry.id}
                       dark={dark}
-                      className="!p-3.5 group"
-                      extraStyle={{ background: dark ? "#272014" : "#FFFBEB" }}
+                      className="p-3.5 group"
+                      style={{
+                        background: dark ? "#252a33" : "#eef3f9",
+                      }}
                     >
                       <div className="flex items-start gap-2">
                         <div className="flex-1 min-w-0">
                           <p
                             className="text-sm font-medium leading-relaxed"
-                            style={{ color: dark ? "#D4C5A0" : "#5C4A1E" }}
+                            style={{ color: textPrimary }}
                           >
                             {entry.text}
                           </p>
                           <div
                             className="flex items-center gap-1 mt-1.5 text-[11px] font-bold"
-                            style={{ color: "#F59E0B" }}
+                            style={{ color: warning }}
                           >
                             <Clock className="h-3 w-3" />
                             {entry.time}
                           </div>
                         </div>
+
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            setDiaryEntries((p) =>
-                              p.filter((d) => d.id !== entry.id),
+                            setDiaryEntries((prev) =>
+                              prev.filter((d) => d.id !== entry.id),
                             );
                           }}
                           className="opacity-0 group-hover:opacity-100 p-1 rounded-lg transition-all"
-                          style={{ color: dark ? "#6B5B52" : "#C4B5A0" }}
-                          onMouseEnter={(e) =>
-                            (e.currentTarget.style.color = "#EF4444")
-                          }
-                          onMouseLeave={(e) =>
-                            (e.currentTarget.style.color = dark
-                              ? "#6B5B52"
-                              : "#C4B5A0")
-                          }
+                          style={{ color: textMuted }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.color = dark
+                              ? "#fca5a5"
+                              : "#dc2626";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.color = textMuted;
+                          }}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
                       </div>
-                    </ClayCard>
+                    </NeumorphicCard>
                   ))}
                 </div>
               </div>
@@ -836,18 +997,17 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Mobile Bottom Nav */}
       <div
         className="lg:hidden fixed bottom-0 left-0 right-0 z-40"
         style={{
-          background: dark ? "rgba(26,23,20,0.97)" : "rgba(245,240,232,0.97)",
-          backdropFilter: "blur(20px)",
-          borderTop: `1px solid ${border}`,
+          background: dark ? "rgba(27,31,39,0.95)" : "rgba(233,238,245,0.96)",
+          backdropFilter: "blur(18px)",
+          borderTop: `1px solid ${divider}`,
         }}
       >
         <div className="flex items-center justify-around px-4 py-3">
           {[
-            { label: "Home", emoji: "🏠", path: "/", active: true },
+            { label: "Home", emoji: "🏠", path: "/neumorphism", active: true },
             { label: "Invoices", emoji: "📄", path: "/invoices" },
             { label: "Clients", emoji: "👥", path: "/clients" },
             { label: "Settings", emoji: "⚙️", path: "/settings" },
@@ -860,14 +1020,14 @@ export default function Home() {
               <span className="text-xl leading-none">{item.emoji}</span>
               <span
                 className="text-[10px] font-bold mt-0.5"
-                style={{ color: item.active ? "#C8341A" : tm }}
+                style={{ color: item.active ? accent : textMuted }}
               >
                 {item.label}
               </span>
               {item.active && (
                 <div
                   className="h-1 w-4 rounded-full mt-0.5"
-                  style={{ background: "#C8341A" }}
+                  style={{ background: accent }}
                 />
               )}
             </button>
@@ -875,18 +1035,21 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Mobile FAB */}
       <button
         onClick={() => router.push("/new-event")}
-        className="lg:hidden fixed z-50 fab-pulse flex items-center gap-2 text-white font-bold text-sm"
+        className="lg:hidden fixed z-50 flex items-center gap-2 font-bold text-sm"
         style={{
           bottom: "74px",
           right: "16px",
-          background: "linear-gradient(135deg,#C8341A,#E85D42)",
+          color: accent,
+          background: bg,
           borderRadius: "18px",
           padding: "12px 18px",
           border: "none",
           cursor: "pointer",
+          boxShadow: dark
+            ? "8px 8px 16px rgba(10,12,16,0.52), -8px -8px 16px rgba(66,74,90,0.18)"
+            : "8px 8px 16px rgba(163,177,198,0.45), -8px -8px 16px rgba(255,255,255,0.92)",
         }}
       >
         <Plus className="h-5 w-5" strokeWidth={2.5} /> New Invoice
