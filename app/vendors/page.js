@@ -19,33 +19,20 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 
-// ─── Config ───────────────────────────────────────────────────────────────────
-const DEPT_CFG = {
-  Food: {
-    icon: Utensils,
-    color: (dark) => (dark ? "#fb923c" : "#c2410c"),
-    bg: (dark) => (dark ? "rgba(251,146,60,0.15)" : "rgba(194,65,12,0.08)"),
-  },
-  Lights: {
-    icon: Lightbulb,
-    color: (dark) => (dark ? "#fbbf24" : "#b45309"),
-    bg: (dark) => (dark ? "rgba(251,191,36,0.15)" : "rgba(180,83,9,0.08)"),
-  },
-  Decor: {
-    icon: Sparkles,
-    color: (dark) => (dark ? "#f9a8d4" : "#be185d"),
-    bg: (dark) => (dark ? "rgba(249,168,212,0.15)" : "rgba(190,24,93,0.08)"),
-  },
-  Equipment: {
-    icon: Package,
-    color: (dark) => (dark ? "#93c5fd" : "#1d4ed8"),
-    bg: (dark) => (dark ? "rgba(147,197,253,0.15)" : "rgba(29,78,216,0.08)"),
-  },
-  Other: {
-    icon: MoreHorizontal,
-    color: (dark) => (dark ? "#9ca3af" : "#4b5563"),
-    bg: (dark) => (dark ? "rgba(156,163,175,0.15)" : "rgba(75,85,99,0.08)"),
-  },
+// dept → CSS class (static, no dark conditional)
+const DEPT_CLASS = {
+  Food: "dept-food",
+  Lights: "dept-lights",
+  Decor: "dept-decor",
+  Equipment: "dept-equipment",
+  Other: "dept-other",
+};
+const DEPT_ICON = {
+  Food: Utensils,
+  Lights: Lightbulb,
+  Decor: Sparkles,
+  Equipment: Package,
+  Other: MoreHorizontal,
 };
 
 const vendorsData = [
@@ -130,16 +117,14 @@ const vendorsData = [
   },
 ];
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
 function NeuFilterBtn({
   label,
   active,
+  icon: Icon,
   onClick,
-  dark,
-  bg,
   accent,
   textMuted,
-  icon: Icon,
+  bg,
 }) {
   return (
     <button
@@ -148,13 +133,7 @@ function NeuFilterBtn({
       style={{
         color: active ? accent : textMuted,
         background: bg,
-        boxShadow: active
-          ? dark
-            ? "inset 5px 5px 10px rgba(10,12,16,0.55), inset -5px -5px 10px rgba(66,74,90,0.16)"
-            : "inset 5px 5px 10px rgba(163,177,198,0.45), inset -5px -5px 10px rgba(255,255,255,0.92)"
-          : dark
-            ? "6px 6px 12px rgba(10,12,16,0.5), -6px -6px 12px rgba(66,74,90,0.2)"
-            : "6px 6px 12px rgba(163,177,198,0.45), -6px -6px 12px rgba(255,255,255,0.9)",
+        boxShadow: active ? "var(--neu-active-nav)" : "var(--neu-soft)",
         border: "none",
         cursor: "pointer",
       }}
@@ -165,49 +144,38 @@ function NeuFilterBtn({
   );
 }
 
-function StatusPill({ status, dark }) {
+function StatusPill({ status }) {
   const cfg = STATUS_CFG[status];
   return (
     <span
       className="text-[11px] font-bold px-2.5 py-1 rounded-full"
-      style={{ background: cfg.bgStr(dark), color: cfg.color(dark) }}
+      style={{ background: cfg.bgStr, color: cfg.color }}
     >
       {status}
     </span>
   );
 }
 
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  iconColor,
-  valueColor,
-  dark,
-  bg,
-}) {
-  const iconInset = dark
-    ? "inset 5px 5px 10px rgba(10,12,16,0.55), inset -5px -5px 10px rgba(66,74,90,0.16)"
-    : "inset 5px 5px 10px rgba(163,177,198,0.38), inset -5px -5px 10px rgba(255,255,255,0.95)";
+function StatCard({ icon: Icon, label, value, iconColor, valueColor, bg }) {
   return (
-    <NeumorphicCard dark={dark} className="p-4 lg:p-5">
+    <NeumorphicCard className="p-4 lg:p-5">
       <div className="flex items-center gap-3">
         <div
           className="h-10 w-10 rounded-2xl flex items-center justify-center shrink-0"
-          style={{ background: bg, boxShadow: iconInset }}
+          style={{ background: bg, boxShadow: "var(--neu-icon-inset)" }}
         >
           <Icon className="h-5 w-5" style={{ color: iconColor }} />
         </div>
         <div>
           <div
             className="text-[10px] font-extrabold uppercase tracking-wider mb-0.5"
-            style={{ color: dark ? "#94a3b8" : "#64748b" }}
+            style={{ color: "var(--neu-text-muted)" }}
           >
             {label}
           </div>
           <div
             className="text-lg font-extrabold"
-            style={{ color: valueColor || (dark ? "#eef4ff" : "#1f2937") }}
+            style={{ color: valueColor || "var(--neu-text-primary)" }}
           >
             {value}
           </div>
@@ -217,86 +185,63 @@ function StatCard({
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function Vendors() {
   const neu = useNeu();
-  const { dark, bg, textPrimary, textMuted, divider, accent } = neu;
+  const { bg, textPrimary, textMuted, divider, accent, purpleIcon } = neu;
 
   const [expandedId, setExpandedId] = useState(null);
   const [search, setSearch] = useState("");
   const [filterDept, setFilterDept] = useState("All");
   const [filterStatus, setFilterStatus] = useState("All");
 
-  const filtered = vendorsData.filter((v) => {
-    const matchSearch =
-      v.name.toLowerCase().includes(search.toLowerCase()) ||
-      v.contactPerson.toLowerCase().includes(search.toLowerCase());
-    const matchDept = filterDept === "All" || v.department === filterDept;
-    const matchStatus = filterStatus === "All" || v.status === filterStatus;
-    return matchSearch && matchDept && matchStatus;
-  });
+  const filtered = vendorsData.filter(
+    (v) =>
+      (v.name.toLowerCase().includes(search.toLowerCase()) ||
+        v.contactPerson.toLowerCase().includes(search.toLowerCase())) &&
+      (filterDept === "All" || v.department === filterDept) &&
+      (filterStatus === "All" || v.status === filterStatus),
+  );
 
   const totalPayable = vendorsData.reduce((s, v) => s + v.totalAmount, 0);
   const totalPaid = vendorsData.reduce((s, v) => s + v.amountPaid, 0);
   const totalBalance = totalPayable - totalPaid;
-
-  const departments = ["All", ...Object.keys(DEPT_CFG)];
-  const tableHeaderStyle = {
-    background: dark ? "#23272f" : "#dde4ef",
-    borderBottom: `1px solid ${divider}`,
-    borderRadius: "20px 20px 0 0",
-    padding: "12px 16px",
-  };
-  const rowDivider = { borderBottom: `1px solid ${divider}` };
+  const departments = ["All", ...Object.keys(DEPT_CLASS)];
 
   return (
     <DashboardLayout title="Vendors" subtitle="GN to Vendor payment tracking">
-      {/* Header tag */}
       <div className="flex items-center gap-2 mb-5">
-        <span
-          className="text-xs font-bold px-2 py-0.5 rounded-xl"
-          style={{
-            background: dark ? "rgba(139,92,246,0.2)" : "#ede9fe",
-            color: dark ? "#c4b5fd" : "#6d28d9",
-          }}
-        >
+        <span className="text-xs font-bold px-2 py-0.5 rounded-xl tag-b2b">
           B2B
         </span>
       </div>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-5 mb-6">
         <StatCard
-          dark={dark}
           bg={bg}
           icon={Truck}
           label="Total Payable"
           value={`${totalPayable.toLocaleString()} PKR`}
-          iconColor={dark ? "#c4b5fd" : "#7c3aed"}
+          iconColor={purpleIcon}
         />
         <StatCard
-          dark={dark}
           bg={bg}
           icon={CheckCircle2}
           label="Total Paid"
           value={`${totalPaid.toLocaleString()} PKR`}
-          iconColor={dark ? "#4ade80" : "#16a34a"}
-          valueColor={dark ? "#4ade80" : "#15803d"}
+          iconColor="var(--neu-success)"
+          valueColor="var(--neu-success)"
         />
         <StatCard
-          dark={dark}
           bg={bg}
           icon={AlertCircle}
           label="Outstanding"
           value={`${totalBalance.toLocaleString()} PKR`}
-          iconColor={dark ? "#f87171" : "#dc2626"}
-          valueColor={dark ? "#f87171" : "#dc2626"}
+          iconColor="var(--neu-danger)"
+          valueColor="var(--neu-danger)"
         />
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-5 flex-wrap">
-        {/* Search */}
         <div className="relative flex-1 max-w-sm">
           <Search
             className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none"
@@ -311,28 +256,20 @@ export default function Vendors() {
             style={{ paddingLeft: "40px" }}
           />
         </div>
-
-        {/* Department filters */}
         <div className="flex gap-2 flex-wrap">
-          {departments.map((dept) => {
-            const cfg = DEPT_CFG[dept];
-            return (
-              <NeuFilterBtn
-                key={dept}
-                label={dept}
-                icon={cfg?.icon}
-                active={filterDept === dept}
-                onClick={() => setFilterDept(dept)}
-                dark={dark}
-                bg={bg}
-                accent={accent}
-                textMuted={textMuted}
-              />
-            );
-          })}
+          {departments.map((dept) => (
+            <NeuFilterBtn
+              key={dept}
+              label={dept}
+              icon={DEPT_ICON[dept]}
+              active={filterDept === dept}
+              onClick={() => setFilterDept(dept)}
+              accent={accent}
+              textMuted={textMuted}
+              bg={bg}
+            />
+          ))}
         </div>
-
-        {/* Status filters */}
         <div className="flex gap-2 flex-wrap">
           {["All", "Pending", "Partial", "Paid"].map((s) => (
             <NeuFilterBtn
@@ -340,25 +277,26 @@ export default function Vendors() {
               label={s}
               active={filterStatus === s}
               onClick={() => setFilterStatus(s)}
-              dark={dark}
-              bg={bg}
-              accent={dark ? "#c4b5fd" : "#7c3aed"}
+              accent={purpleIcon}
               textMuted={textMuted}
+              bg={bg}
             />
           ))}
         </div>
       </div>
 
-      {/* Table */}
       <NeumorphicCard
-        dark={dark}
         className="overflow-hidden"
         style={{ borderRadius: "24px" }}
       >
-        {/* Table Header */}
         <div
-          className="hidden md:grid grid-cols-12 gap-2 text-[10px] font-extrabold uppercase tracking-wider"
-          style={{ ...tableHeaderStyle, color: textMuted }}
+          className="hidden md:grid grid-cols-12 gap-2 text-[10px] font-extrabold uppercase tracking-wider px-4 py-3"
+          style={{
+            background: "var(--neu-panel-bg)",
+            borderBottom: `1px solid ${divider}`,
+            color: textMuted,
+            borderRadius: "24px 24px 0 0",
+          }}
         >
           <div className="col-span-3">Vendor</div>
           <div className="col-span-2">Department</div>
@@ -368,36 +306,25 @@ export default function Vendors() {
           <div className="col-span-1 text-center">Status</div>
         </div>
 
-        {/* Rows */}
         {filtered.map((vendor) => {
           const balance = vendor.totalAmount - vendor.amountPaid;
           const pctPaid = Math.round(
             (vendor.amountPaid / vendor.totalAmount) * 100,
           );
           const isExpanded = expandedId === vendor.id;
-          const deptCfg = DEPT_CFG[vendor.department];
-          const DeptIcon = deptCfg?.icon;
+          const DeptIcon = DEPT_ICON[vendor.department];
 
           return (
             <div key={vendor.id}>
-              {/* Main row */}
               <div
                 onClick={() => setExpandedId(isExpanded ? null : vendor.id)}
                 className="grid grid-cols-12 gap-2 items-center px-4 py-3 lg:py-4 cursor-pointer neu-row-hover transition-colors"
-                style={rowDivider}
+                style={{ borderBottom: `1px solid ${divider}` }}
               >
-                {/* Vendor name */}
                 <div className="col-span-10 md:col-span-3 flex items-center gap-3 min-w-0">
                   <div
-                    className="h-9 w-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                    style={{
-                      background: dark
-                        ? "#2d1f5e"
-                        : "linear-gradient(135deg,#a78bfa,#7c3aed)",
-                      boxShadow: dark
-                        ? "3px 3px 7px rgba(10,12,16,0.45), -3px -3px 7px rgba(66,74,90,0.18)"
-                        : "3px 3px 7px rgba(163,177,198,0.4), -3px -3px 7px rgba(255,255,255,0.9)",
-                    }}
+                    className="h-9 w-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 neu-avatar-vendor"
+                    style={{ boxShadow: "var(--neu-soft)" }}
                   >
                     {vendor.name
                       .split(" ")
@@ -422,21 +349,15 @@ export default function Vendors() {
                   </div>
                 </div>
 
-                {/* Department */}
                 <div className="hidden md:flex col-span-2 items-center">
                   <span
-                    className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full"
-                    style={{
-                      background: deptCfg?.bg(dark),
-                      color: deptCfg?.color(dark),
-                    }}
+                    className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full ${DEPT_CLASS[vendor.department] ?? ""}`}
                   >
                     {DeptIcon && <DeptIcon className="h-3 w-3" />}
                     {vendor.department}
                   </span>
                 </div>
 
-                {/* Total */}
                 <div className="hidden md:block col-span-2 text-right">
                   <div
                     className="text-sm font-bold"
@@ -449,11 +370,10 @@ export default function Vendors() {
                   </div>
                 </div>
 
-                {/* Paid */}
                 <div className="hidden md:block col-span-2 text-right">
                   <div
                     className="text-sm font-bold"
-                    style={{ color: dark ? "#4ade80" : "#15803d" }}
+                    style={{ color: "var(--neu-success)" }}
                   >
                     {vendor.amountPaid.toLocaleString()}
                   </div>
@@ -462,19 +382,14 @@ export default function Vendors() {
                   </div>
                 </div>
 
-                {/* Balance */}
                 <div className="hidden md:block col-span-2 text-right">
                   <div
                     className="text-sm font-bold"
                     style={{
                       color:
                         balance > 0
-                          ? dark
-                            ? "#f87171"
-                            : "#dc2626"
-                          : dark
-                            ? "#4ade80"
-                            : "#15803d",
+                          ? "var(--neu-danger)"
+                          : "var(--neu-success)",
                     }}
                   >
                     {balance > 0 ? balance.toLocaleString() : "—"}
@@ -486,10 +401,9 @@ export default function Vendors() {
                   )}
                 </div>
 
-                {/* Status + chevron */}
                 <div className="col-span-2 md:col-span-1 flex justify-end md:justify-center items-center gap-1">
                   <span className="hidden md:block">
-                    <StatusPill status={vendor.status} dark={dark} />
+                    <StatusPill status={vendor.status} />
                   </span>
                   {isExpanded ? (
                     <ChevronUp
@@ -505,20 +419,16 @@ export default function Vendors() {
                 </div>
               </div>
 
-              {/* Expanded panel */}
               {isExpanded && (
                 <div
                   className="px-4 py-4"
                   style={{
-                    background: dark
-                      ? "rgba(255,255,255,0.02)"
-                      : "rgba(255,255,255,0.4)",
+                    background: "var(--neu-panel-bg)",
                     borderTop: `1px solid ${divider}`,
                   }}
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Vendor details */}
-                    <NeumorphicCard dark={dark} className="p-4">
+                    <NeumorphicCard className="p-4">
                       <div
                         className="text-[10px] font-extrabold uppercase tracking-wider mb-3"
                         style={{ color: textMuted }}
@@ -544,8 +454,6 @@ export default function Vendors() {
                           </div>
                         ))}
                       </div>
-
-                      {/* Progress */}
                       <div className="mt-4">
                         <div
                           className="flex justify-between text-xs mb-1"
@@ -554,30 +462,17 @@ export default function Vendors() {
                           <span>Payment Progress</span>
                           <span>{pctPaid}% paid</span>
                         </div>
-                        <div
-                          className="h-2 rounded-full overflow-hidden"
-                          style={{
-                            background: dark ? "#2d3440" : "#d1dae8",
-                            boxShadow: dark
-                              ? "inset 2px 2px 4px rgba(10,12,16,0.5), inset -2px -2px 4px rgba(66,74,90,0.12)"
-                              : "inset 2px 2px 4px rgba(163,177,198,0.35), inset -2px -2px 4px rgba(255,255,255,0.9)",
-                          }}
-                        >
+                        <div className="h-2 rounded-full overflow-hidden neu-progress-track">
                           <div
-                            className="h-full rounded-full transition-all"
-                            style={{
-                              width: `${pctPaid}%`,
-                              background: dark
-                                ? "linear-gradient(90deg,#c4b5fd,#a78bfa)"
-                                : "linear-gradient(90deg,#7c3aed,#a78bfa)",
-                            }}
+                            className="h-full rounded-full transition-all neu-progress-fill-vendor"
+                            style={{ width: `${pctPaid}%` }}
                           />
                         </div>
                         <div className="flex justify-between mt-2 text-xs font-bold">
-                          <span style={{ color: dark ? "#4ade80" : "#15803d" }}>
+                          <span style={{ color: "var(--neu-success)" }}>
                             Paid: {vendor.amountPaid.toLocaleString()} PKR
                           </span>
-                          <span style={{ color: dark ? "#f87171" : "#dc2626" }}>
+                          <span style={{ color: "var(--neu-danger)" }}>
                             Due:{" "}
                             {(
                               vendor.totalAmount - vendor.amountPaid
@@ -588,15 +483,13 @@ export default function Vendors() {
                       </div>
                     </NeumorphicCard>
 
-                    {/* Payment history */}
-                    <NeumorphicCard dark={dark} className="p-4">
+                    <NeumorphicCard className="p-4">
                       <div
                         className="text-[10px] font-extrabold uppercase tracking-wider mb-3"
                         style={{ color: textMuted }}
                       >
                         Payment History
                       </div>
-
                       {vendor.payments.length === 0 ? (
                         <div
                           className="flex flex-col items-center justify-center h-24"
@@ -612,12 +505,8 @@ export default function Vendors() {
                               key={i}
                               className="flex items-center justify-between px-3 py-2 rounded-2xl"
                               style={{
-                                background: dark
-                                  ? "rgba(255,255,255,0.04)"
-                                  : "rgba(255,255,255,0.6)",
-                                boxShadow: dark
-                                  ? "inset 3px 3px 6px rgba(10,12,16,0.4), inset -3px -3px 6px rgba(66,74,90,0.12)"
-                                  : "inset 3px 3px 6px rgba(163,177,198,0.3), inset -3px -3px 6px rgba(255,255,255,0.85)",
+                                background: "var(--neu-item-bg)",
+                                boxShadow: "var(--neu-history-item)",
                               }}
                             >
                               <div>
@@ -636,13 +525,12 @@ export default function Vendors() {
                               </div>
                               <div
                                 className="text-sm font-bold"
-                                style={{ color: dark ? "#4ade80" : "#15803d" }}
+                                style={{ color: "var(--neu-success)" }}
                               >
                                 {p.amount.toLocaleString()}
                               </div>
                             </div>
                           ))}
-
                           <div
                             className="flex justify-between pt-2 text-sm font-bold"
                             style={{

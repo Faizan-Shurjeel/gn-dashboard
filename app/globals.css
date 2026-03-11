@@ -3,27 +3,415 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ── Light tokens ─────────────────────────────────────────────────────────── */
 :root {
-    --background: #e9eef5;
-    --foreground: #1f2937;
+    /* backgrounds */
+    --neu-bg: #e9eef5;
+    --neu-sidebar-bg: #e9eef5;
+    --neu-card-bg: #e9eef5;
+    --neu-diary-bg: #eef3f9;
+    --neu-panel-bg: rgba(255, 255, 255, 0.4);
+    --neu-item-bg: rgba(255, 255, 255, 0.6);
+    --neu-mobile-nav: rgba(233, 238, 245, 0.96);
+
+    /* text */
+    --neu-text-primary: #1f2937;
+    --neu-text-muted: #64748b;
+    --neu-nav-inactive: #617086;
+
+    /* accents */
+    --neu-accent: #2563eb;
+    --neu-accent-soft: #dbeafe;
+    --neu-warning: #d97706;
+    --neu-success: #15803d;
+    --neu-danger: #dc2626;
+    --neu-purple: #6d28d9;
+    --neu-purple-icon: #7c3aed;
+
+    /* shadows */
+    --neu-raised:
+        8px 8px 18px rgba(163, 177, 198, 0.55),
+        -8px -8px 18px rgba(255, 255, 255, 0.95);
+    --neu-pressed:
+        inset 6px 6px 12px rgba(163, 177, 198, 0.45),
+        inset -6px -6px 12px rgba(255, 255, 255, 0.9);
+    --neu-soft:
+        6px 6px 12px rgba(163, 177, 198, 0.45),
+        -6px -6px 12px rgba(255, 255, 255, 0.9);
+    --neu-icon-inset:
+        inset 5px 5px 10px rgba(163, 177, 198, 0.38),
+        inset -5px -5px 10px rgba(255, 255, 255, 0.95);
+    --neu-small-inset:
+        inset 4px 4px 8px rgba(163, 177, 198, 0.32),
+        inset -4px -4px 8px rgba(255, 255, 255, 0.95);
+    --neu-avatar:
+        inset 5px 5px 10px rgba(163, 177, 198, 0.4),
+        inset -5px -5px 10px rgba(255, 255, 255, 0.95);
+    --neu-active-nav:
+        inset 5px 5px 10px rgba(163, 177, 198, 0.45),
+        inset -5px -5px 10px rgba(255, 255, 255, 0.92);
+    --neu-input:
+        inset 6px 6px 12px rgba(163, 177, 198, 0.4),
+        inset -6px -6px 12px rgba(255, 255, 255, 0.95);
+    --neu-progress-track-shadow:
+        inset 2px 2px 4px rgba(163, 177, 198, 0.35),
+        inset -2px -2px 4px rgba(255, 255, 255, 0.9);
+    --neu-notif:
+        4px 4px 8px rgba(163, 177, 198, 0.38),
+        -4px -4px 8px rgba(255, 255, 255, 0.95);
+    --neu-history-item:
+        inset 3px 3px 6px rgba(163, 177, 198, 0.3),
+        inset -3px -3px 6px rgba(255, 255, 255, 0.85);
+
+    /* misc */
+    --neu-divider: rgba(100, 116, 139, 0.12);
+    --neu-scrollbar: #c6d0dc;
+    --neu-row-hover: rgba(255, 255, 255, 0.5);
+    --neu-progress-track: #d1dae8;
+    --neu-fab-shadow:
+        8px 8px 16px rgba(163, 177, 198, 0.45),
+        -8px -8px 16px rgba(255, 255, 255, 0.92);
+
+    /* status */
+    --neu-paid-color: #15803d;
+    --neu-paid-bg: rgba(21, 128, 61, 0.1);
+    --neu-partial-color: #d97706;
+    --neu-partial-bg: rgba(217, 119, 6, 0.1);
+    --neu-pending-color: #dc2626;
+    --neu-pending-bg: rgba(220, 38, 38, 0.1);
+
+    /* event type badges */
+    --neu-badge-wedding-bg: #fce7f3;
+    --neu-badge-wedding-color: #be185d;
+    --neu-badge-corporate-bg: #dbeafe;
+    --neu-badge-corporate-color: #1d4ed8;
+    --neu-badge-general-bg: #fef3c7;
+    --neu-badge-general-color: #92400e;
+
+    /* department badges */
+    --neu-dept-food-color: #c2410c;
+    --neu-dept-food-bg: rgba(194, 65, 12, 0.08);
+    --neu-dept-lights-color: #b45309;
+    --neu-dept-lights-bg: rgba(180, 83, 9, 0.08);
+    --neu-dept-decor-color: #be185d;
+    --neu-dept-decor-bg: rgba(190, 24, 93, 0.08);
+    --neu-dept-equip-color: #1d4ed8;
+    --neu-dept-equip-bg: rgba(29, 78, 216, 0.08);
+    --neu-dept-other-color: #4b5563;
+    --neu-dept-other-bg: rgba(75, 85, 99, 0.08);
+
+    /* b2c/b2b tags */
+    --neu-tag-b2c-color: #1d4ed8;
+    --neu-tag-b2c-bg: #dbeafe;
+    --neu-tag-b2b-color: #6d28d9;
+    --neu-tag-b2b-bg: #ede9fe;
+
+    /* avatars */
+    --neu-avatar-client: linear-gradient(135deg, #60a5fa, #2563eb);
+    --neu-avatar-vendor: linear-gradient(135deg, #a78bfa, #7c3aed);
+
+    /* progress bars */
+    --neu-progress-client: linear-gradient(90deg, #2563eb, #60a5fa);
+    --neu-progress-vendor: linear-gradient(90deg, #7c3aed, #a78bfa);
 }
 
+/* ── Dark tokens ──────────────────────────────────────────────────────────── */
 .dark {
-    --background: #1b1f27;
-    --foreground: #eef4ff;
+    --neu-bg: #1b1f27;
+    --neu-sidebar-bg: #20242c;
+    --neu-card-bg: #23272f;
+    --neu-diary-bg: #252a33;
+    --neu-panel-bg: rgba(255, 255, 255, 0.02);
+    --neu-item-bg: rgba(255, 255, 255, 0.04);
+    --neu-mobile-nav: rgba(27, 31, 39, 0.95);
+
+    --neu-text-primary: #eef4ff;
+    --neu-text-muted: #94a3b8;
+    --neu-nav-inactive: #8e99ae;
+
+    --neu-accent: #7dd3fc;
+    --neu-accent-soft: #172554;
+    --neu-warning: #fbbf24;
+    --neu-success: #4ade80;
+    --neu-danger: #f87171;
+    --neu-purple: #ddd6fe;
+    --neu-purple-icon: #c4b5fd;
+
+    --neu-raised:
+        8px 8px 18px rgba(10, 12, 16, 0.55),
+        -8px -8px 18px rgba(66, 74, 90, 0.26);
+    --neu-pressed:
+        inset 6px 6px 12px rgba(10, 12, 16, 0.55),
+        inset -6px -6px 12px rgba(66, 74, 90, 0.18);
+    --neu-soft:
+        6px 6px 12px rgba(10, 12, 16, 0.5), -6px -6px 12px rgba(66, 74, 90, 0.2);
+    --neu-icon-inset:
+        inset 5px 5px 10px rgba(10, 12, 16, 0.55),
+        inset -5px -5px 10px rgba(66, 74, 90, 0.16);
+    --neu-small-inset:
+        inset 4px 4px 8px rgba(10, 12, 16, 0.45),
+        inset -4px -4px 8px rgba(66, 74, 90, 0.15);
+    --neu-avatar:
+        inset 5px 5px 10px rgba(10, 12, 16, 0.55),
+        inset -5px -5px 10px rgba(66, 74, 90, 0.18);
+    --neu-active-nav:
+        inset 5px 5px 10px rgba(10, 12, 16, 0.55),
+        inset -5px -5px 10px rgba(66, 74, 90, 0.16);
+    --neu-input:
+        inset 6px 6px 12px rgba(10, 12, 16, 0.55),
+        inset -6px -6px 12px rgba(66, 74, 90, 0.18);
+    --neu-progress-track-shadow:
+        inset 2px 2px 4px rgba(10, 12, 16, 0.5),
+        inset -2px -2px 4px rgba(66, 74, 90, 0.12);
+    --neu-notif:
+        4px 4px 8px rgba(10, 12, 16, 0.45), -4px -4px 8px rgba(66, 74, 90, 0.16);
+    --neu-history-item:
+        inset 3px 3px 6px rgba(10, 12, 16, 0.4),
+        inset -3px -3px 6px rgba(66, 74, 90, 0.12);
+
+    --neu-divider: rgba(148, 163, 184, 0.12);
+    --neu-scrollbar: #3a4352;
+    --neu-row-hover: rgba(255, 255, 255, 0.025);
+    --neu-progress-track: #2d3440;
+    --neu-fab-shadow:
+        8px 8px 16px rgba(10, 12, 16, 0.52),
+        -8px -8px 16px rgba(66, 74, 90, 0.18);
+
+    --neu-paid-color: #4ade80;
+    --neu-paid-bg: rgba(74, 222, 128, 0.15);
+    --neu-partial-color: #fbbf24;
+    --neu-partial-bg: rgba(251, 191, 36, 0.15);
+    --neu-pending-color: #f87171;
+    --neu-pending-bg: rgba(248, 113, 113, 0.15);
+
+    --neu-badge-wedding-bg: #2f2430;
+    --neu-badge-wedding-color: #f9a8d4;
+    --neu-badge-corporate-bg: #1d2f45;
+    --neu-badge-corporate-color: #93c5fd;
+    --neu-badge-general-bg: #3c321c;
+    --neu-badge-general-color: #fcd34d;
+
+    --neu-dept-food-color: #fb923c;
+    --neu-dept-food-bg: rgba(251, 146, 60, 0.15);
+    --neu-dept-lights-color: #fbbf24;
+    --neu-dept-lights-bg: rgba(251, 191, 36, 0.15);
+    --neu-dept-decor-color: #f9a8d4;
+    --neu-dept-decor-bg: rgba(249, 168, 212, 0.15);
+    --neu-dept-equip-color: #93c5fd;
+    --neu-dept-equip-bg: rgba(147, 197, 253, 0.15);
+    --neu-dept-other-color: #9ca3af;
+    --neu-dept-other-bg: rgba(156, 163, 175, 0.15);
+
+    --neu-tag-b2c-color: #93c5fd;
+    --neu-tag-b2c-bg: rgba(59, 130, 246, 0.2);
+    --neu-tag-b2b-color: #c4b5fd;
+    --neu-tag-b2b-bg: rgba(139, 92, 246, 0.2);
+
+    --neu-avatar-client: #1e3a5f;
+    --neu-avatar-vendor: #2d1f5e;
+
+    --neu-progress-client: linear-gradient(90deg, #7dd3fc, #38bdf8);
+    --neu-progress-vendor: linear-gradient(90deg, #c4b5fd, #a78bfa);
 }
 
+/* ── Base ────────────────────────────────────────────────────────────────── */
 *,
 *::before,
 *::after {
     box-sizing: border-box;
     font-family: "Plus Jakarta Sans", sans-serif;
 }
-
 html,
 body {
     margin: 0;
     padding: 0;
-    background: var(--background);
-    color: var(--foreground);
+    background: var(--neu-bg);
+    color: var(--neu-text-primary);
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--neu-scrollbar);
+    border-radius: 999px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* ── Shared card background ──────────────────────────────────────────────── */
+.neu-card {
+    background: var(--neu-card-bg);
+}
+.neu-diary {
+    background: var(--neu-diary-bg);
+}
+
+/* ── Inputs ──────────────────────────────────────────────────────────────── */
+.neu-input,
+.neu-input-bare,
+.neu-textarea {
+    border: none;
+    outline: none;
+    display: block;
+    width: 100%;
+    border-radius: 18px;
+    background: var(--neu-card-bg);
+    color: var(--neu-text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: var(--neu-input);
+}
+.neu-input::placeholder,
+.neu-input-bare::placeholder,
+.neu-textarea::placeholder {
+    color: var(--neu-text-muted);
+}
+.neu-input {
+    padding: 10px 16px 10px 40px;
+}
+.neu-input-bare {
+    padding: 10px 16px;
+}
+.neu-textarea {
+    padding: 12px 14px;
+    resize: none;
+}
+
+/* ── Nav hover (no JS needed) ────────────────────────────────────────────── */
+.neu-nav-btn:not(.active):hover {
+    background: rgba(255, 255, 255, 0.45);
+}
+.dark .neu-nav-btn:not(.active):hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* ── Table row hover ─────────────────────────────────────────────────────── */
+.neu-row-hover:hover {
+    background: var(--neu-row-hover) !important;
+}
+
+/* ── Delete button hover ─────────────────────────────────────────────────── */
+.neu-delete-btn {
+    color: var(--neu-text-muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+.neu-delete-btn:hover {
+    color: #dc2626;
+}
+.dark .neu-delete-btn:hover {
+    color: #fca5a5;
+}
+
+/* ── Avatars ─────────────────────────────────────────────────────────────── */
+.neu-avatar-client {
+    background: var(--neu-avatar-client);
+}
+.neu-avatar-vendor {
+    background: var(--neu-avatar-vendor);
+}
+
+/* ── Progress bars ───────────────────────────────────────────────────────── */
+.neu-progress-track {
+    background: var(--neu-progress-track);
+    box-shadow: var(--neu-progress-track-shadow);
+}
+.neu-progress-fill-client {
+    background: var(--neu-progress-client);
+}
+.neu-progress-fill-vendor {
+    background: var(--neu-progress-vendor);
+}
+
+/* ── Status pills ────────────────────────────────────────────────────────── */
+.status-paid {
+    background: var(--neu-paid-bg);
+    color: var(--neu-paid-color);
+}
+.status-partial {
+    background: var(--neu-partial-bg);
+    color: var(--neu-partial-color);
+}
+.status-pending {
+    background: var(--neu-pending-bg);
+    color: var(--neu-pending-color);
+}
+
+/* ── Event type badges ───────────────────────────────────────────────────── */
+.badge-wedding {
+    background: var(--neu-badge-wedding-bg);
+    color: var(--neu-badge-wedding-color);
+}
+.badge-corporate {
+    background: var(--neu-badge-corporate-bg);
+    color: var(--neu-badge-corporate-color);
+}
+.badge-general {
+    background: var(--neu-badge-general-bg);
+    color: var(--neu-badge-general-color);
+}
+
+/* ── Department badges ───────────────────────────────────────────────────── */
+.dept-food {
+    background: var(--neu-dept-food-bg);
+    color: var(--neu-dept-food-color);
+}
+.dept-lights {
+    background: var(--neu-dept-lights-bg);
+    color: var(--neu-dept-lights-color);
+}
+.dept-decor {
+    background: var(--neu-dept-decor-bg);
+    color: var(--neu-dept-decor-color);
+}
+.dept-equipment {
+    background: var(--neu-dept-equip-bg);
+    color: var(--neu-dept-equip-color);
+}
+.dept-other {
+    background: var(--neu-dept-other-bg);
+    color: var(--neu-dept-other-color);
+}
+
+/* ── B2C / B2B tags ──────────────────────────────────────────────────────── */
+.tag-b2c {
+    background: var(--neu-tag-b2c-bg);
+    color: var(--neu-tag-b2c-color);
+}
+.tag-b2b {
+    background: var(--neu-tag-b2b-bg);
+    color: var(--neu-tag-b2b-color);
+}
+
+/* ── Animations ──────────────────────────────────────────────────────────── */
+@keyframes soft-float {
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-2px);
+    }
+}
+.soft-float {
+    animation: soft-float 2.8s ease-in-out infinite;
+}
+
+@keyframes slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+.slide-up {
+    animation: slide-up 0.2s ease-out;
 }

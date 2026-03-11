@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Bell,
   CalendarDays,
   TrendingUp,
   CreditCard,
@@ -23,21 +22,95 @@ import {
   SoftIconButton,
 } from "@/components/neumorphic";
 
+// Event type → CSS class (static strings, no dark conditional)
+const TYPE_CLASS = {
+  Wedding: "badge-wedding",
+  Corporate: "badge-corporate",
+  General: "badge-general",
+};
+
+const upcomingEvents = [
+  {
+    id: "EVT-2025-0041",
+    name: "Ahmed & Sana Wedding",
+    type: "Wedding",
+    date: "Dec 12, 2025",
+    guests: 350,
+    status: "Paid",
+    statusVar: "var(--neu-success)",
+  },
+  {
+    id: "EVT-2025-0045",
+    name: "Engro Corp AGM",
+    type: "Corporate",
+    date: "Dec 15, 2025",
+    guests: 120,
+    status: "PKR 45,000 Due",
+    statusVar: "var(--neu-danger)",
+  },
+  {
+    id: "EVT-2025-0048",
+    name: "Birthday — Zaid",
+    type: "General",
+    date: "Dec 18, 2025",
+    guests: 50,
+    status: "Paid",
+    statusVar: "var(--neu-success)",
+  },
+];
+
+const activity = [
+  { text: "Invoice #412 created", time: "2 mins ago" },
+  { text: "Payment received from Ahmed", time: "1 hour ago" },
+  { text: "New quotation for HBL", time: "3 hours ago" },
+  { text: "Event #041 updated", time: "5 hours ago" },
+  { text: "Customer profile: Zaid", time: "1 day ago" },
+];
+
+// No dark-conditional values — all CSS vars
+const STAT_CARDS = [
+  {
+    icon: CalendarDays,
+    label: "Today's Events",
+    value: "4",
+    sub: "2 active now",
+    iconColor: "var(--neu-accent)",
+    path: "/events",
+  },
+  {
+    icon: TrendingUp,
+    label: "This Month",
+    value: "PKR 850k",
+    sub: "+12% vs last",
+    iconColor: "var(--neu-success)",
+  },
+  {
+    icon: CreditCard,
+    label: "Client Dues",
+    value: "PKR 125k",
+    sub: "Pending from clients",
+    iconColor: "var(--neu-danger)",
+    valueColor: "var(--neu-danger)",
+    tag: "B2C",
+    path: "/clients",
+  },
+  {
+    icon: Truck,
+    label: "Vendor Dues",
+    value: "PKR 65k",
+    sub: "Owed to vendors",
+    iconColor: "var(--neu-purple-icon)",
+    valueColor: "var(--neu-purple)",
+    tag: "B2B",
+    path: "/vendors",
+  },
+];
+
 export default function DashboardPage() {
   const router = useRouter();
   const neu = useNeu();
-  const {
-    dark,
-    bg,
-    textPrimary,
-    textMuted,
-    divider,
-    accent,
-    accentSoft,
-    warning,
-  } = neu;
+  const { bg, textPrimary, textMuted, divider, accent, warning } = neu;
 
-  // ── Diary state ──────────────────────────────────────────────────────────
   const [diaryEntries, setDiaryEntries] = useState([
     {
       id: 1,
@@ -61,8 +134,8 @@ export default function DashboardPage() {
   const addNote = () => {
     if (!newNote.trim()) return;
     const now = new Date();
-    const h = now.getHours();
-    const m = String(now.getMinutes()).padStart(2, "0");
+    const h = now.getHours(),
+      m = String(now.getMinutes()).padStart(2, "0");
     setDiaryEntries((prev) => [
       {
         id: Date.now(),
@@ -75,110 +148,19 @@ export default function DashboardPage() {
     setShowNoteInput(false);
   };
 
-  // ── Static data ──────────────────────────────────────────────────────────
-  const upcomingEvents = useMemo(
-    () => [
-      {
-        id: "EVT-2025-0041",
-        name: "Ahmed & Sana Wedding",
-        type: "Wedding",
-        date: "Dec 12, 2025",
-        guests: 350,
-        status: "Paid",
-        statusColor: dark ? "#4ade80" : "#15803d",
-        typeBg: dark ? "#2f2430" : "#fce7f3",
-        typeColor: dark ? "#f9a8d4" : "#be185d",
-      },
-      {
-        id: "EVT-2025-0045",
-        name: "Engro Corp AGM",
-        type: "Corporate",
-        date: "Dec 15, 2025",
-        guests: 120,
-        status: "PKR 45,000 Due",
-        statusColor: dark ? "#f87171" : "#dc2626",
-        typeBg: dark ? "#1d2f45" : "#dbeafe",
-        typeColor: dark ? "#93c5fd" : "#1d4ed8",
-      },
-      {
-        id: "EVT-2025-0048",
-        name: "Birthday — Zaid",
-        type: "General",
-        date: "Dec 18, 2025",
-        guests: 50,
-        status: "Paid",
-        statusColor: dark ? "#4ade80" : "#15803d",
-        typeBg: dark ? "#3c321c" : "#fef3c7",
-        typeColor: dark ? "#fcd34d" : "#92400e",
-      },
-    ],
-    [dark],
-  );
-
-  const activity = [
-    { text: "Invoice #412 created", time: "2 mins ago" },
-    { text: "Payment received from Ahmed", time: "1 hour ago" },
-    { text: "New quotation for HBL", time: "3 hours ago" },
-    { text: "Event #041 updated", time: "5 hours ago" },
-    { text: "Customer profile: Zaid", time: "1 day ago" },
-  ];
-
-  const statCards = [
-    {
-      icon: CalendarDays,
-      label: "Today's Events",
-      value: "4",
-      sub: "2 active now",
-      iconColor: dark ? "#7dd3fc" : "#2563eb",
-      onClick: () => router.push("/events"),
-    },
-    {
-      icon: TrendingUp,
-      label: "This Month",
-      value: "PKR 850k",
-      sub: "+12% vs last",
-      iconColor: dark ? "#4ade80" : "#16a34a",
-    },
-    {
-      icon: CreditCard,
-      label: "Client Dues",
-      value: "PKR 125k",
-      sub: "Pending from clients",
-      iconColor: dark ? "#f87171" : "#dc2626",
-      valueColor: dark ? "#fda4af" : "#b91c1c",
-      tag: "B2C",
-      onClick: () => router.push("/clients"),
-    },
-    {
-      icon: Truck,
-      label: "Vendor Dues",
-      value: "PKR 65k",
-      sub: "Owed to vendors",
-      iconColor: dark ? "#c4b5fd" : "#7c3aed",
-      valueColor: dark ? "#ddd6fe" : "#6d28d9",
-      tag: "B2B",
-      onClick: () => router.push("/vendors"),
-    },
-  ];
-
-  const iconInset = dark
-    ? "inset 5px 5px 10px rgba(10,12,16,0.55), inset -5px -5px 10px rgba(66,74,90,0.16)"
-    : "inset 5px 5px 10px rgba(163,177,198,0.38), inset -5px -5px 10px rgba(255,255,255,0.95)";
-
   return (
     <DashboardLayout title="Dashboard" subtitle="Good morning, Marcus 👋">
-      {/* ── Stat Cards ────────────────────────────────────────────────────── */}
+      {/* ── Stat Cards ─────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5 mb-6 lg:mb-8">
-        {statCards.map((card) => (
+        {STAT_CARDS.map((card) => (
           <NeumorphicCard
             key={card.label}
-            dark={dark}
-            onClick={card.onClick}
+            onClick={card.path ? () => router.push(card.path) : undefined}
             className="p-4 lg:p-5"
           >
             <div
               className="h-10 w-10 rounded-2xl flex items-center justify-center mb-3"
-              style={{ background: bg, boxShadow: iconInset }}
+              style={{ background: bg, boxShadow: "var(--neu-icon-inset)" }}
             >
               <card.icon
                 className="h-4 w-4"
@@ -186,28 +168,24 @@ export default function DashboardPage() {
                 style={{ color: card.iconColor }}
               />
             </div>
-
             <div
               className="text-[10px] font-extrabold uppercase tracking-wider mb-1"
               style={{ color: textMuted }}
             >
               {card.label}
             </div>
-
             <div
               className="text-lg lg:text-xl font-extrabold leading-tight"
               style={{ color: card.valueColor || textPrimary }}
             >
               {card.value}
             </div>
-
             <div
               className="text-[10px] font-semibold mt-0.5"
               style={{ color: textMuted }}
             >
               {card.sub}
             </div>
-
             {card.tag && (
               <div className="absolute bottom-4 right-4 flex items-center gap-1">
                 <span
@@ -222,8 +200,7 @@ export default function DashboardPage() {
                 />
               </div>
             )}
-
-            {card.onClick && !card.tag && (
+            {card.path && !card.tag && (
               <ChevronRight
                 className="absolute bottom-4 right-4 h-3.5 w-3.5"
                 style={{ color: textMuted }}
@@ -233,9 +210,8 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* ── Main Grid ─────────────────────────────────────────────────────── */}
+      {/* ── Main Grid ──────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-        {/* Left: Events + Activity */}
         <div className="lg:col-span-2 space-y-4 lg:space-y-6">
           {/* Upcoming Events */}
           <section>
@@ -248,28 +224,26 @@ export default function DashboardPage() {
               </span>
               <button
                 className="text-sm font-bold"
-                style={{ color: accent }}
+                style={{
+                  color: accent,
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                }}
                 onClick={() => router.push("/events")}
               >
                 View All
               </button>
             </div>
-
             <div className="space-y-3">
               {upcomingEvents.map((ev) => (
-                <NeumorphicCard
-                  key={ev.id}
-                  dark={dark}
-                  onClick={() => {}}
-                  className="p-4"
-                >
+                <NeumorphicCard key={ev.id} onClick={() => {}} className="p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <div
                         className="text-[10px] font-bold mb-1"
                         style={{ color: textMuted }}
                       >
-                        {" "}
                         {ev.id}
                       </div>
                       <div
@@ -278,11 +252,10 @@ export default function DashboardPage() {
                       >
                         {ev.name}
                       </div>
-
                       <div className="flex items-center gap-2 flex-wrap">
+                        {/* CSS class — no dark conditional */}
                         <span
-                          className="text-[11px] font-bold px-2.5 py-1 rounded-full"
-                          style={{ background: ev.typeBg, color: ev.typeColor }}
+                          className={`${TYPE_CLASS[ev.type] ?? ""} text-[11px] font-bold px-2.5 py-1 rounded-full`}
                         >
                           {ev.type}
                         </span>
@@ -302,7 +275,7 @@ export default function DashboardPage() {
                     </div>
                     <span
                       className="text-sm font-extrabold shrink-0"
-                      style={{ color: ev.statusColor }}
+                      style={{ color: ev.statusVar }}
                     >
                       {ev.status}
                     </span>
@@ -317,7 +290,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2 mb-3">
               <Zap
                 className="h-4 w-4"
-                style={{ color: dark ? "#c4b5fd" : "#7c3aed" }}
+                style={{ color: "var(--neu-purple-icon)" }}
               />
               <span
                 className="text-base font-extrabold"
@@ -326,12 +299,11 @@ export default function DashboardPage() {
                 Recent Activity
               </span>
             </div>
-
-            <NeumorphicCard dark={dark} className="p-1 overflow-hidden">
+            <NeumorphicCard className="p-1 overflow-hidden">
               {activity.map((item, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-3 px-4 py-3 rounded-[22px] transition-colors neu-row-hover"
+                  className="flex items-center gap-3 px-4 py-3 rounded-[22px] neu-row-hover transition-colors"
                   style={{
                     borderBottom:
                       i < activity.length - 1 ? `1px solid ${divider}` : "none",
@@ -341,8 +313,7 @@ export default function DashboardPage() {
                   <div
                     className="h-2.5 w-2.5 rounded-full shrink-0"
                     style={{
-                      background:
-                        i === 0 ? accent : dark ? "#4b5563" : "#94a3b8",
+                      background: i === 0 ? accent : "var(--neu-text-muted)",
                     }}
                   />
                   <div className="flex-1 min-w-0">
@@ -369,7 +340,7 @@ export default function DashboardPage() {
           </section>
         </div>
 
-        {/* Right: Diary */}
+        {/* Diary */}
         <div className="lg:col-span-1">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -382,7 +353,6 @@ export default function DashboardPage() {
               </span>
             </div>
             <SoftIconButton
-              dark={dark}
               onClick={() => setShowNoteInput((v) => !v)}
               className="h-9 w-9 rounded-2xl"
               style={{ color: warning }}
@@ -393,7 +363,7 @@ export default function DashboardPage() {
 
           {showNoteInput && (
             <div className="mb-3 slide-up">
-              <NeumorphicCard dark={dark} className="p-3">
+              <NeumorphicCard className="p-3">
                 <textarea
                   autoFocus
                   rows={3}
@@ -410,9 +380,7 @@ export default function DashboardPage() {
                     style={{
                       color: accent,
                       background: bg,
-                      boxShadow: dark
-                        ? "6px 6px 12px rgba(10,12,16,0.52), -6px -6px 12px rgba(66,74,90,0.18)"
-                        : "6px 6px 12px rgba(163,177,198,0.4), -6px -6px 12px rgba(255,255,255,0.95)",
+                      boxShadow: "var(--neu-soft)",
                       border: "none",
                       cursor: "pointer",
                     }}
@@ -428,9 +396,7 @@ export default function DashboardPage() {
                     style={{
                       color: textMuted,
                       background: bg,
-                      boxShadow: dark
-                        ? "6px 6px 12px rgba(10,12,16,0.52), -6px -6px 12px rgba(66,74,90,0.18)"
-                        : "6px 6px 12px rgba(163,177,198,0.4), -6px -6px 12px rgba(255,255,255,0.95)",
+                      boxShadow: "var(--neu-soft)",
                       border: "none",
                       cursor: "pointer",
                     }}
@@ -444,12 +410,7 @@ export default function DashboardPage() {
 
           <div className="space-y-2.5">
             {diaryEntries.map((entry) => (
-              <NeumorphicCard
-                key={entry.id}
-                dark={dark}
-                className="p-3.5 group"
-                style={{ background: dark ? "#252a33" : "#eef3f9" }}
-              >
+              <NeumorphicCard key={entry.id} className="p-3.5 group neu-diary">
                 <div className="flex items-start gap-2">
                   <div className="flex-1 min-w-0">
                     <p
@@ -465,7 +426,6 @@ export default function DashboardPage() {
                       <Clock className="h-3 w-3" /> {entry.time}
                     </div>
                   </div>
-
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -473,21 +433,7 @@ export default function DashboardPage() {
                         prev.filter((d) => d.id !== entry.id),
                       );
                     }}
-                    className="opacity-0 group-hover:opacity-100 p-1 rounded-lg transition-all"
-                    style={{
-                      color: textMuted,
-                      background: "transparent",
-                      border: "none",
-                      cursor: "pointer",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = dark
-                        ? "#fca5a5"
-                        : "#dc2626";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = textMuted;
-                    }}
+                    className="opacity-0 group-hover:opacity-100 p-1 rounded-lg transition-all neu-delete-btn"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>

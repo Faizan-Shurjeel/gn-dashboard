@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 const ThemeContext = createContext({
   theme: 'light',
@@ -8,40 +8,22 @@ const ThemeContext = createContext({
 });
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState('light');
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    // Check localStorage or system preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      setTheme(savedTheme);
-      if (savedTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      }
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setTheme('dark');
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
+  const [theme, setTheme] = useState(() => {
+    // On the server there is no DOM — default to light (SSR shell).
+    // On the client the blocking script in layout.js has already set
+    // the correct class on <html> before React runs, so we read from
+    // the DOM here. This makes the very first render output the right
+    // colors with no extra effect cycle needed.
+    if (typeof window === 'undefined') return 'light';
+    return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+  });
 
   const toggleTheme = () => {
-    if (theme === 'light') {
-      setTheme('dark');
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      setTheme('light');
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
+    const next = theme === 'light' ? 'dark' : 'light';
+    setTheme(next);
+    document.documentElement.classList.toggle('dark', next === 'dark');
+    localStorage.setItem('theme', next);
   };
-
-  // Prevent hydration mismatch
-  if (!mounted) {
-    return <>{children}</>;
-  }
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
